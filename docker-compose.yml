@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fromnear_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/vector_store:/app/vector_store
+    environment:
+      - LLM_BASE_URL=http://host.docker.internal:11434/v1
+      - EMBED_MODEL=nomic-embed-text
+      - VECTOR_STORE_PATH=./vector_store/chroma.sqlite3
+      - DB_URL=sqlite+aiosqlite:///./vector_store/fromnear.db
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fromnear_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
