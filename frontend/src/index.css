@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --bg-base: #0e0e0e;
+  --surface: #161616;
+  --surface-elevated: #1e1e1e;
+  --border: #2a2a2a;
+  --border-subtle: #222222;
+  --divider: #1e1e1e;
+
+  --text-primary: #f0ede8;
+  --text-secondary: #8a8480;
+  --text-muted: #4a4744;
+
+  --accent-primary: #e8c547;
+  --accent-hover: #d4b23a;
+  --accent-soft: #e8c5471a;
+
+  --hot: #f97316;
+  --warm: #e8c547;
+  --cold: #6b7280;
+
+  --success: #4ade80;
+  --error: #f87171;
+}
+
+.light {
+  --bg-base: #f5f2ed;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: #e5e1db;
+  --border-subtle: #e5e1db;
+  --divider: #e5e1db;
+  --text-primary: #1a1714;
+  --text-secondary: #8a8480;
+  --text-muted: #8a8480;
+  --accent-primary: #b8962a;
+  --accent-hover: #a7861e;
+  --accent-soft: #b8962a1a;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; min-height: 100%; }
+html { color-scheme: dark; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+.app-page { padding: 32px; max-width: 1200px; margin: 0 auto; }
+.page-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); margin: 0; }
+.page-subtitle { font-size: 0.875rem; color: var(--text-secondary); margin-top: 8px; }
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.card-pad { padding: 20px; }
+.card-pad-compact { padding: 16px; }
+.divider { border-color: var(--divider); }
+
+@media (max-width: 900px) {
+  .app-page { padding: 20px; }
+}
