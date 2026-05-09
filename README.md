@@ -188,6 +188,7 @@ npm run preview
 ```bash
 cd backend
 pip install -r requirements.txt
+ruff format .
 ruff check .
 PYTHONPATH=. pytest
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -223,7 +224,7 @@ Containers:
 - **CORS errors in browser:** verify `CORS_ORIGINS` matches frontend host/port.
 - **Frontend cannot reach API:** verify `VITE_API_BASE_URL` in `frontend/.env`.
 - **Model errors:** verify your chat/embedding models are available in your LLM runtime.
-- **Need LAN access to backend:** run uvicorn with `--host 0.0.0.0` (instead of `127.0.0.1`) and secure access at the network/firewall level.
+- **Need LAN access to backend:** run uvicorn with `--host 0.0.0.0` (instead of `127.0.0.1`). **Warning:** this exposes the API on all network interfaces; only do this with proper firewall/network controls in place.
 
 ---
 
