@@ -1,212 +1,240 @@
-﻿<div align="center">
-  
 # 🤖 FromNear AI Employee
 
-**The Next-Gen Production-Grade AI Assistant for Vendor Research, Sales Pitching & Marketing Pipelines**
+AI-powered assistant for vendor research, personalized sales outreach, and campaign generation.
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-5+-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
-[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](#)
-[![LangGraph](https://img.shields.io/badge/LangGraph-Agent_Pipeline-green?style=for-the-badge)](https://python.langchain.com/)
-[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Memory-orange?style=for-the-badge)](#)
+## Overview
 
-*Empowering local businesses with deterministic AI driven pipelines, multi-agent validation, and local LLM execution.*
+FromNear runs a deterministic multi-agent pipeline:
 
-</div>
+1. **Research Agent** collects website/Instagram context.
+2. **Sales Agent** drafts personalized outreach using current context + memory.
+3. **Marketing Agent** creates campaign content.
+4. **Validator Agent** applies deterministic checks and retries when needed.
 
----
-
-## 🌟 Executive Summary
-
-**FromNear AI Employee** is an enterprise-ready, locally executable AI orchestration platform. It is built to **automate vendor analysis, construct highly personalized sales pitches, and build exhaustive marketing campaigns** without human intervention. 
-
-By unifying **LangGraph**, **ChromaDB**, and **FastAPI** into a single deterministic pipeline, the AI guarantees adherence to strict business constraints through self-correcting validation cycles.
+Outputs are persisted in:
+- **SQLite** (vendor data + run history)
+- **ChromaDB** (vector memory for recall)
 
 ---
 
-## 🏗️ Architecture & AI Pipeline Overview
+## Architecture Flow
 
-Our "LangGraph" state machine orchestrates four specialized agents in a deterministic sequence. If the **Validator Agent** detects that a pitch or campaign does not meet your business rules, it dynamically injects the error context and routes back to the **Sales Agent** for autonomous self-correction.
-
-### 📊 The LangGraph Agent Pipeline
-
-`mermaid
+```mermaid
 graph TD
-    %% Styling
-    classDef input fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef agent fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef validator fill:#e67e22,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef stop fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef success fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff;
-
-    %% Nodes
-    IN[Vendor Input URL/Data]:::input
-    R[Research Agent: Scrape Web & Social]:::agent
-    S[Sales Agent: Context & Memories]:::agent
-    M[Marketing Agent: Funnel Creation]:::agent
-    V[Validator Agent: Deterministic Checks]:::validator
-    
-    DB[(ChromaDB Vector Store)]
-    SQL[(SQLite Relational DB)]
-    
-    END[Pipeline Complete & Saved]:::success
-    FAIL[Max Retries Reached]:::stop
-
-    %% Edges
-    IN --> R
-    R -- Business Summary &
-Qualification Score --> S
-    S -- Recalls Past Interactions --> DB
-    S -- Pitch Draft --> M
-    M -- Marketing Campaign --> V
-    
-    V -- Fails Checks (injects errors) --> S
-    V -- Passes All Checks --> END
-    V -- Retries > Max --> FAIL
-    
-    END --> SQL
-    END -. Learns Long-term .-> DB
-`
+    A[Vendor Input] --> B[Research Agent]
+    B --> C[Sales Agent]
+    C --> D[Marketing Agent]
+    D --> E[Validator Agent]
+    E -->|valid| F[Complete]
+    E -->|invalid and retries < max| C
+    F --> G[(SQLite)]
+    F --> H[(ChromaDB)]
+```
 
 ---
 
-## 🗄️ Core Data Schema
+## Tech Stack
 
-The entire state transitions natively across Python "TypedDict" structures enforcing rigid structure throughout execution.
-
-`python
-class State(TypedDict, total=False):
-    vendor_input: VendorInput             # Initial Raw URLs
-    vendor_id: Optional[int]              # Postgres/SQLite PK
-    raw_research: Optional[Dict]          # Scraped HTML/JS strings
-    summary: Optional[BusinessSummary]    # Agent insights
-    qualification: Optional[QualificationScore] # 0-100 Score
-    pitch: Optional[SalesPitch]           # Multi-step CTA array
-    campaign: Optional[Campaign]          # Social/Email drafts
-    valid: bool                           # Validation bool
-    retries: int                          # Max 3 attempts
-    errors: List[str]                     # Accumulated validation feedback
-`
+- **Backend:** FastAPI, LangGraph, SQLAlchemy, ChromaDB
+- **Frontend:** React, TypeScript, Vite, React Query
+- **LLM Runtime:** OpenAI-compatible endpoint (Ollama recommended)
+- **Infra:** Docker Compose
 
 ---
 
-## 🚀 Setting Up the Environments
+## Repository Structure
 
-FromNear is separated into decoupled Frontend and Backend workspaces.
+```text
+FromNear-AI-Employee/
+├── backend/
+│   ├── app/
+│   │   ├── agents/
+│   │   ├── orchestrator/
+│   │   ├── routes/
+│   │   ├── memory/
+│   │   ├── schemas/
+│   │   ├── tools/
+│   │   └── tests/
+│   ├── .env.example
+│   ├── pyproject.toml
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   └── router/
+│   ├── .env.example
+│   └── package.json
+├── docs/
+│   ├── architecture.md
+│   └── configuration.md
+└── docker-compose.yml
+```
 
-### 1. Requirements
+---
 
-- **Python**: 3.10+
-- **Node.js**: 18.0+
-- **Ollama**: (For running local LLMs like "llama3" or "mistral") OR OpenAI API key.
+## Prerequisites
 
-### 2. Backend Setup (FastAPI + Langchain + ChromaDB)
+- **Python:** 3.11+ (backend `pyproject.toml` enforces `requires-python = ">=3.11"`)
+- **Node.js:** 18+
+- **npm:** latest stable
+- **Ollama** (recommended for local model hosting) or another OpenAI-compatible endpoint
+- **Docker** + **Docker Compose** (optional for containerized setup)
 
-`ash
-# Navigate to backend
+---
+
+## Environment Configuration
+
+### Backend (`backend/.env`)
+
+Copy from example and update values:
+
+```bash
 cd backend
+cp .env.example .env
+```
 
-# Create isolated virtual environment
-python -m venv .venv
+Required variables:
 
-# Activate it (Windows)
-.venv\Scripts\activate
-# Activate it (macOS/Linux)
-source .venv/bin/activate
+```env
+LLM_BASE_URL=http://localhost:11434/v1
+CHAT_MODEL=llama3.2
+EMBED_MODEL=nomic-embed-text
+DATABASE_URL=sqlite+aiosqlite:///./data.db
+VECTOR_STORE_PATH=./vector_store
+CORS_ORIGINS=http://localhost:5173
+```
 
-# Install strictly pinned dependencies
-pip install -r requirements.txt
-`
+Optional:
 
-**Environment Variables .env (backend):**
-`env
-LLM_BASE_URL="http://localhost:11434/v1" # Local Ollama Base
-EMBED_MODEL="nomic-embed-text"           
-VECTOR_STORE_PATH="./vector_store/chroma.sqlite3"
-DB_URL="sqlite+aiosqlite:///./vector_store/fromnear.db"
-`
+```env
+MAX_RETRIES=2
+MIN_CAMPAIGN_POSTS=5
+```
 
-**Run Development Server:**
-`ash
-uvicorn app.main:app --reload
-`
-API Documentation mapped at: http://localhost:8000/docs
+### Frontend (`frontend/.env`)
 
-### 3. Frontend Setup (React + Vite + TypeScript)
-
-`ash
-# Navigate to frontend
+```bash
 cd frontend
+cp .env.example .env
+```
 
-# Install package dependencies
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+---
+
+## Local Development Setup
+
+### 1) Backend
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Backend URLs:
+- API root: `http://localhost:8000/`
+- Swagger docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/api/v1/health`
+
+### 2) Frontend
+
+```bash
+cd frontend
 npm install
-
-# Start Vite HMR Dev Server
 npm run dev
-`
-Client mapped at: http://localhost:5173
+```
+
+Frontend URL:
+- App: `http://localhost:5173`
 
 ---
 
-## 🐳 Production Deployment (Docker orchestration)
+## API Endpoints (Mounted at `/api/v1`)
 
-For production, we package the graph execution engine and the react application into separate, resilient Docker containers.
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/health` | Service health check |
+| POST | `/vendors/run` | Run full pipeline for a vendor |
+| GET | `/vendors` | List vendors |
+| GET | `/vendors/{vendor_id}` | Vendor detail |
+| GET | `/vendors/{vendor_id}/run` | Last run artifacts |
+| POST | `/vendors/{vendor_id}/followup` | Generate follow-up pitch |
+| GET | `/vendors/{vendor_id}/history` | Interaction history |
 
-`ash
-# Build and run the entire stack in detached mode
+---
+
+## CLI Cheat Sheet
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+npm run lint
+npm run build
+npm run preview
+```
+
+### Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+ruff format .
+ruff check .
+PYTHONPATH=. pytest
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+### Docker
+
+```bash
 docker-compose up --build -d
-
-# View live stream of AI agent reasoning
-docker logs -f fromnear_backend
-
-# Bring down the infrastructure cleanly
+docker-compose logs -f backend
 docker-compose down
-`
+```
 
 ---
 
-## 🛠️ CLI Cheat Sheet
+## Docker Deployment
 
-A comprehensive collection of quick commands for administrators and developers.
+```bash
+docker-compose up --build -d
+```
 
-#### Backend
-| Action | Command |
-| :--- | :--- |
-| **Run API Server** | uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 |
-| **Run Tests** | pytest tests/ -v |
-| **Format Code** | uff format . |
-| **Lint Code** | uff check . --fix |
-| **Update Dependencies** | pip freeze > requirements.txt |
+Containers:
+- `fromnear_backend` → `http://localhost:8000`
+- `fromnear_frontend` → `http://localhost:80`
 
-#### Frontend
-| Action | Command |
-| :--- | :--- |
-| **Start Dev Server** | 
-pm run dev |
-| **Build for Prod** | 
-pm run build |
-| **Preview Prod Build**| 
-pm run preview |
-| **TypeScript Check**| 	sc --noEmit |
-
-#### Docker
-| Action | Command |
-| :--- | :--- |
-| **Force Rebuild Stacks** | docker-compose up --build --force-recreate -d |
-| **Check AI Backtrace** | docker exec -it fromnear_backend tail -f logs/agent.log |
+> Note: local frontend development runs on `http://localhost:5173`, while Docker serves it on port `80`.
 
 ---
 
-## 🧬 Why FromNear?
+## Troubleshooting
 
-1. **Self-Correction loops (Deterministic Validator):** Standard LLMs hallucinate. FromNear uses non-LLM Python checks to guarantee every drafted sales pitch includes EXACTLY 3 follow-ups, a hard Call to Action, and references the client's name.
-2. **Absolute Privacy:** The memory stack runs entirely local (SQLite + local ChromaDB) hitting Ollama endpoints. Zero PII leaves your VPC.
-3. **Async Native:** Built top-to-bottom on "asyncio". Concurrent scraping (eautifulsoup4 & httpx), inference, and database transactions (iosqlite) enables massive multi-vendor throughput.
+- **Backend cannot start:** ensure `backend/.env` exists and required variables are set.
+- **CORS errors in browser:** verify `CORS_ORIGINS` matches frontend host/port.
+- **Frontend cannot reach API:** verify `VITE_API_BASE_URL` in `frontend/.env`.
+- **Model errors:** verify your chat/embedding models are available in your LLM runtime.
+- **Need LAN access to backend:** run uvicorn with `--host 0.0.0.0` (instead of `127.0.0.1`). **Warning:** this exposes the API on all network interfaces; only do this with proper firewall/network controls in place.
 
 ---
 
-<div align="center">
-  <i>Built with standard modular practices. Production-Ready out of the box.</i> <br>
-  <b>License: MIT</b> • <b>Maintainer: AI Team</b>
-</div>
+## Additional Documentation
+
+- `docs/architecture.md`
+- `docs/configuration.md`
+
+---
+
+## License
+
+MIT
