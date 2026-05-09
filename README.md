@@ -76,7 +76,7 @@ FromNear-AI-Employee/
 
 ## Prerequisites
 
-- **Python:** 3.11+
+- **Python:** 3.11+ (backend `pyproject.toml` enforces `requires-python = ">=3.11"`)
 - **Node.js:** 18+
 - **npm:** latest stable
 - **Ollama** (recommended for local model hosting) or another OpenAI-compatible endpoint
@@ -212,6 +212,8 @@ docker-compose up --build -d
 Containers:
 - `fromnear_backend` → `http://localhost:8000`
 - `fromnear_frontend` → `http://localhost:80`
+
+> Note: local frontend development runs on `http://localhost:5173`, while Docker serves it on port `80`.
 
 ---
 
