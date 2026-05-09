@@ -223,6 +223,7 @@ Containers:
 - **CORS errors in browser:** verify `CORS_ORIGINS` matches frontend host/port.
 - **Frontend cannot reach API:** verify `VITE_API_BASE_URL` in `frontend/.env`.
 - **Model errors:** verify your chat/embedding models are available in your LLM runtime.
+- **Need LAN access to backend:** run uvicorn with `--host 0.0.0.0` (instead of `127.0.0.1`) and secure access at the network/firewall level.
 
 ---
 
